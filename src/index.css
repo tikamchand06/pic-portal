@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
+body {
+  margin: 0;
+  min-width: 780px;
+  min-height: 580px;
+}
+body *:not(i) {
+  font-family: 'Open Sans', sans-serif !important;
+}
+.pr-2 {
+  padding-right: 1rem;
+}
+.ui.container.m-0,
+.m-0 {
+  margin: 0 !important;
+}
+.m-1 {
+  margin: 0.5rem;
+}
+.mb-2 {
+  margin-bottom: 1rem !important;
+}
+.ui.navbar {
+  margin: 0 !important;
+  position: sticky;
+  z-index: 100;
+  top: 0;
+  border-radius: 0;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+}
+.ui.segment.mt-2px {
+  margin-top: 2px !important;
+}
+.ui.segment.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 100;
+  background: #263238;
+  color: white;
+}
+.ui.segment {
+  border-radius: 0 !important;
+  border: 0 !important;
+  margin: 0 !important;
+}
+.ui.body,
+.ui.body.m-0 {
+  min-height: 320px;
+  padding: 1rem;
+  margin-bottom: 3rem !important;
+}
+.text-white {
+  color: white;
+}
+.flex-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mr-1 {
+  margin-right: 1rem;
+}
+.mt-2,
+.ui.mt-2 {
+  margin-top: 1rem !important;
+}
+.pt-0 {
+  padding-top: 0 !important;
+}
+.ui.form .field.disabled > label,
+.ui.form .fields.disabled > label,
+.ui.disabled.dropdown,
+.ui.dropdown .menu > .disabled.item {
+  opacity: 1 !important;
+}
+.main-menu i.icon {
+  margin-right: 0.5rem !important;
+}
+.ui.styled.accordion .content {
+  padding: 0 0.5rem 0.5rem !important;
+}
+.ui.search input {
+  width: 152px !important;
+  padding: 0.5rem 1rem;
+}
+.img-div {
+  position: relative;
+  display: inline-block;
+}
+.actions {
+  opacity: 0;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.25);
+  height: calc(100% - 0.5rem);
+  width: calc(100% - 0.5rem);
+  text-align: right;
+  padding: 0.5rem;
+  top: 0;
+  left: 0.25rem;
+  transition: all 0.25s ease;
+  cursor: zoom-in;
+}
+.img-div:hover .actions {
+  opacity: 1;
+}
+.text-center {
+  text-align: center;
+  justify-content: center;
+}
