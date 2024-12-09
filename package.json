@@ -3,7 +3,6 @@
   "version": "1.0.4",
   "private": true,
   "dependencies": {
-    "ahooks": "^3.8.1",
     "antd": "^5.22.3",
     "bootstrap-icons": "^1.11.3",
     "pexels": "^1.4.0",

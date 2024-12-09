@@ -2,7 +2,9 @@ import { createClient } from "pexels";
 import { FILE_TYPES } from "./actions/constants";
 import React, { useEffect, useState, useContext, createContext, useMemo, useCallback } from "react";
 
+const { localStorage } = window;
 const { storage, downloads } = window?.chrome;
+const changeEvent = new Event("localStorageChange");
 
 // Create Pexels Client
 const client = createClient(process.env.REACT_APP_PEXELS_API_KEY);
@@ -11,21 +13,37 @@ const client = createClient(process.env.REACT_APP_PEXELS_API_KEY);
 const onDownload = (url = "") => downloads?.download({ url });
 
 // Get Favourites
-const getFavourites = async () => await storage?.local?.get();
+const getFavourites = async () => {
+  if (storage) return await storage?.local?.get();
+  if (localStorage) return { favourites: JSON.parse(localStorage.getItem("favourites") || "[]") };
+  return { favourites: [] };
+};
 
 // Set Favourites
 const setFavourites = async (favItem = "") => {
   if (!favItem) return;
 
   const { favourites = [] } = await getFavourites();
-  await storage?.local?.set({ favourites: [...favourites, favItem] });
+  const newFavs = [...favourites, favItem];
+
+  if (storage) await storage?.local?.set({ favourites: newFavs });
+  else if (localStorage) {
+    localStorage.setItem("favourites", JSON.stringify(newFavs));
+    document.dispatchEvent(changeEvent);
+  }
 };
 
 // Delete Favourites
 const deleteFavourites = async (favId = "") => {
   if (!favId) return;
   const { favourites = [] } = await getFavourites();
-  await storage?.local?.set({ favourites: favourites?.filter((fav) => fav?.id !== favId) });
+  const newFavs = favourites?.filter((fav) => fav?.id !== favId);
+
+  if (storage) await storage?.local?.set({ favourites: newFavs });
+  else if (localStorage) {
+    localStorage.setItem("favourites", JSON.stringify(newFavs));
+    document.dispatchEvent(changeEvent);
+  }
 };
 
 // PexelsContext to keep the latest state
@@ -66,15 +84,22 @@ export default function PexelsProvider({ children }) {
   // Favourites
   useEffect(() => {
     // Get Previous
-    getFavourites()
-      .then(({ favourites = [] }) => updateState({ favourites: favourites?.reverse() }))
-      .catch(console.log);
+    const updateFavourites = () => {
+      getFavourites()
+        .then(({ favourites = [] }) => updateState({ favourites: favourites?.reverse() }))
+        .catch(console.log);
+    };
 
     // on change listner
     storage?.onChanged?.addListener((changes) => {
       const keys = Object.keys(changes);
       updateState(keys.reduce((obj, key) => ({ ...obj, [key]: changes[key]?.newValue?.reverse() }), {}));
     });
+
+    // Listen for the custom event
+    document?.addEventListener("localStorageChange", updateFavourites);
+
+    updateFavourites();
   }, [updateState]);
 
   // Fetch More Photos/Videos
