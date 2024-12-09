@@ -1,75 +1,88 @@
-import React, { useState } from 'react';
-import { Container, Header, Segment, Image, Input, Button } from 'semantic-ui-react';
-import unsplash from '../unsplash';
-import TCMImage from './TCMImage';
+import CustomImage from "./CustomImage";
+import ItemsContainer from "./ItemsContainer";
+import { usePexelsContext } from "../PexelsProvider";
+import React, { useState, useCallback } from "react";
+import { Spin, Flex, Input, Select, Typography } from "antd";
 
-const Search = () => {
-  const [state, setState] = useState({
-    isLoading: false,
-    searchString: '',
-    results: [],
-    per_page: 30,
-    page_number: 1
-  });
-  const { isLoading, results, searchString, page_number, per_page } = state;
+const { Title } = Typography;
+const initailState = { query: "", page: 0, results: [], searchType: "photos", per_page: 20, total_results: 0, isLoading: false };
 
-  const searchPhoto = async (loadMore = false) => {
-    let newState = { ...state, isLoading: true };
-    if (loadMore) newState = { ...newState, results: [], page_number: page_number + 1 };
+export default function Search() {
+  const [state, setState] = useState(initailState);
+  const { client, FILE_TYPES } = usePexelsContext();
+  const { query = "", searchType = "photos", isLoading, results = [], page = 0, per_page = 20, total_results = 0 } = state;
 
-    setState(newState);
+  const updateState = (newState) => setState((prevState) => ({ ...prevState, ...newState }));
 
-    const request = await unsplash.search.photos(searchString, page_number, per_page);
-    const response = await request.json();
-    setState({ ...newState, isLoading: false, results: response.results });
-  };
+  const hasResults = results?.length > 0;
+  const isPhotos = searchType === "photos";
+
+  const onSearch = useCallback(
+    async (query = "") => {
+      if (!query) return;
+
+      try {
+        updateState({ isLoading: true });
+        const res = await client[searchType].search({ query, per_page: per_page, page: page + 1 });
+        updateState({ ...res, query, results: [...results, ...(isPhotos ? res?.photos : res?.videos)] });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        updateState({ isLoading: false });
+      }
+    },
+    [client, isPhotos, page, per_page, results, searchType]
+  );
 
   return (
-    <Container className="m-0" fluid>
-      <Header as="h2" color="blue" content="Search Images" dividing />
-      <Input
-        label={
-          <Button
-            content="Search"
-            primary
-            icon="search"
-            disabled={isLoading || !searchString}
-            loading={isLoading}
-            onClick={() => searchPhoto()}
+    <div className='search-item p-2 h-100'>
+      <Input.Search
+        allowClear
+        size='large'
+        onSearch={onSearch}
+        loading={isLoading}
+        enterButton='Search'
+        onClear={() => updateState(initailState)}
+        onChange={(e) => updateState({ ...initailState, query: e?.target?.value })}
+        suffix={
+          <Select
+            variant='filled'
+            value={searchType}
+            style={{ width: 100 }}
+            onClick={(e) => e?.stopPropagation()}
+            options={[
+              { value: "photos", label: "Photos" },
+              { value: "videos", label: "Videos" },
+            ]}
+            suffixIcon={<i className='bi bi-chevron-down' />}
+            onChange={(searchType) => updateState({ ...initailState, query, searchType })}
           />
         }
-        labelPosition="right"
-        placeholder="Search images..."
-        value={searchString}
-        onChange={(e, d) => setState({ ...state, searchString: d.value })}
-        fluid
+        placeholder={`Search ${isPhotos ? "Photos" : "Videos"}...`}
       />
 
-      <Segment loading={isLoading} className="mt-2">
-        {results.length === 0 ? (
-          'Your search results will appear here.'
-        ) : (
-          <>
-            <Image.Group
-              content={results.map(image => (
-                <TCMImage image={image} key={image.id} />
-              ))}
-            />
-            <Button
-              content="Load More..."
-              icon="sync"
-              onClick={() => searchPhoto(true)}
-              className="mb-2"
-              inverted
-              primary
-              fluid
-              disabled={!searchString && results.length === 0}
-            />
-          </>
-        )}
-      </Segment>
-    </Container>
+      <div className='search-result mt-2' style={{ height: "calc(100% - 45px - 1rem)" }}>
+        <Spin tip='Loading...' spinning={isLoading && !hasResults}>
+          {hasResults ? (
+            <>
+              <ItemsContainer
+                items={results}
+                type={FILE_TYPES.SEARCH}
+                dataLength={results.length}
+                onFetchMore={() => onSearch(query)}
+                hasMore={total_results > results.length}
+              />
+            </>
+          ) : (
+            <Flex vertical align='center' justify='center' style={{ margin: "auto", width: 300, paddingTop: 20 }}>
+              <CustomImage name='noData' className='h-200px' />
+              <Title level={5} className='mt-2'>
+                Your search results will appear here...
+              </Title>
+            </Flex>
+          )}
+        </Spin>
+      </div>
+    </div>
   );
-};
-
-export default Search;
+}

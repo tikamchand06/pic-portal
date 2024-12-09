@@ -1,15 +1,18 @@
 {
-  "name": "tcm-unsplash",
-  "version": "0.1.0",
+  "name": "pic-portal",
+  "version": "1.0.4",
   "private": true,
   "dependencies": {
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.3.0",
-    "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.88.2",
-    "unsplash-js": "^6.0.0"
+    "ahooks": "^3.8.1",
+    "antd": "^5.22.3",
+    "bootstrap-icons": "^1.11.3",
+    "pexels": "^1.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-responsive-masonry": "^2.2.0",
+    "react-scripts": "^5.0.1",
+    "simplebar-react": "^3.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -31,5 +34,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7"
   }
 }
